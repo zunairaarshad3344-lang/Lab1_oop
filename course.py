@@ -18,6 +18,12 @@ class Course:
             )
         self.marks[student] = marks
 
+    def remove_student(self, name: str) -> None:
+        """Remove a student, or raise KeyError if missing."""
+        if name not in self.marks:
+            raise KeyError(f"No student named {name}")
+        del self.marks[name]
+
     def average(self) -> float:
         """Calculate the average marks."""
         if not self.marks:
@@ -56,19 +62,15 @@ def load_course(name: str, filename: str) -> Course:
                 if not line:
                     continue
 
-                student, mark = line.split(",")
-
                 try:
+                    student, mark = line.split(",")
                     marks = int(mark)
                 except ValueError:
-                    print(
-                        f"Skipping {student}: "
-                        "marks is not a number"
-                    )
+                    print(f"Skipping invalid line: {line}")
                     continue
 
                 try:
-                    course.add_student(student, marks)
+                    course.add_student(student.strip(), marks)
                 except InvalidMarksError as e:
                     print("Skipping:", e)
 
@@ -81,4 +83,13 @@ def load_course(name: str, filename: str) -> Course:
 if __name__ == "__main__":
     test = Course("Test")
     test.add_student("A", 50)
-    print(test)
+    test.add_student("B", 90)
+
+    test.remove_student("A")
+    print("After removing A:", test)
+    print("Number of students:", len(test))
+
+    try:
+        test.remove_student("Zara")
+    except KeyError as e:
+        print("KeyError:", e)
